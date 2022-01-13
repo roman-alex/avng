@@ -1,8 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-#idea
-.idea
-
 # dependencies
 /node_modules
 /.pnp
@@ -27,6 +24,7 @@ yarn-debug.log*
 yarn-error.log*
 yarn.lock
 
+.idea
 node_modules
 .env
 coverage
