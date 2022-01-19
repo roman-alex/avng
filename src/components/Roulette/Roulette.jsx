@@ -1,31 +1,85 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Switch from "react-switch";
-import {useMoralis} from "react-moralis";
+import {useERC20Balances, useMoralis} from "react-moralis";
+import Confetti from "react-confetti";
 import {
   Row,
   Col,
   Button,
-  InputNumber, notification,
+  InputNumber,
+  Tabs,
+  notification,
 } from 'antd';
 import styles from "./styles";
 import contractInfo from "../../contracts/contractInfo.json";
-import Confetti from "react-confetti";
+import Transfers from "./components/Transfers";
 
 function Roulette() {
+  const { Moralis, chainId, account } = useMoralis();
+  const { data: assets } = useERC20Balances();
+  const { TabPane } = Tabs;
+
   const [checked, setChecked] = useState(true);
   const [amount, setAmount] = useState(1);
   const [isPending, setIsPending] = useState(false);
   const [runConfetti, setRunConfetti] = useState(false);
-  const { Moralis } = useMoralis();
-  const decimals = "18";
+  const [tokenERC20Data, setTokenERC20Data] = useState();
+  const [transfersAll, setTransfersAll] = useState();
+  const [transfersMy, setTransfersMy] = useState();
+  const [activeTab, setActiveTab] = useState();
+
+  const isValidChain = chainId && chainId === "0x61";
+
+  useEffect(() => {
+    if (isValidChain) {
+      fetchAllSpinsData();
+      fetchMySpinsData();
+      subscribeSpinsData();
+    }
+  }, [chainId])
+
+  useEffect(() => {
+    if (assets) {
+      setTokenERC20Data(assets.find(item => item.token_address === contractInfo.tokenERC20))
+      // balance: "998900"
+      // decimals: "18"
+      // logo: null
+      // name: "Custom token"
+      // symbol: "ARM"
+      // thumbnail: null
+      // token_address: "0x8f0d7bf1f4fb5907780f85e000ee2facfde09369"
+    }
+  }, [assets])
 
   const onChange = event => setAmount(event);
 
   const handleSideChange = event => setChecked(event);
 
-  const onSpin = async () => {
-    console.log("amount: " + amount, checked ? "Red" : "Black")
+  const switchTab = key => setActiveTab(key);
 
+  const subscribeSpinsData = async () => {
+    const query = new Moralis.Query('Spins');
+    const subscription = await query.subscribe();
+    subscription.on("create", async (object) => {
+      fetchAllSpinsData();
+      fetchMySpinsData();
+    });
+  }
+
+  const fetchAllSpinsData = async () => {
+    const query = new Moralis.Query('Spins');
+    const results = await query.descending("block_timestamp").find();
+    setTransfersAll(results.map(tr => tr.attributes));
+  }
+
+  const fetchMySpinsData = async () => {
+    const query = new Moralis.Query('Spins');
+    query.equalTo("user", account);
+    const results = await query.descending("block_timestamp").find();
+    setTransfersMy(results.map(tr => tr.attributes));
+  }
+
+  const onSpin = async () => {
     const tokenApproveOptions = {
       contractAddress: contractInfo.tokenERC20,
       functionName: "approve",
@@ -56,7 +110,7 @@ function Roulette() {
       ],
       params: {
         _spender: contractInfo?.flipContract,
-        _value: Moralis.Units.Token(amount, decimals)
+        _value: Moralis.Units.Token(amount, contractInfo?.tokenERC20Decimals)
       },
     };
 
@@ -66,7 +120,7 @@ function Roulette() {
       abi: contractInfo?.abi,
       params: {
         side: checked ? 1 : 0,
-        value: Moralis.Units.Token(amount, decimals)
+        value: Moralis.Units.Token(amount, contractInfo?.tokenERC20Decimals)
       },
     };
 
@@ -86,7 +140,7 @@ function Roulette() {
         description: `
         User ${user}
         Side ${side ? "Red" : "Black"}
-        Bet ${parseFloat(Moralis.Units.FromWei(bet, decimals).toFixed(6))}`
+        Bet ${parseFloat(Moralis.Units.FromWei(bet, contractInfo?.tokenERC20Decimals).toFixed(6))}`
       });
 
     } catch (e) {
@@ -109,11 +163,17 @@ function Roulette() {
     });
   };
 
+  if (!isValidChain) {
+    return <h1>Please switch to Smart Chain Testnet</h1>
+  }
+
   return (
     <div style={styles.pageWrapper}>
-      <Confetti recycle={false} numberOfPieces={500} run={runConfetti} />
       <h1 style={styles.title}>Roulette</h1>
-      <Row justify="space-between" align="bottom">
+
+      {tokenERC20Data && <p>{`${tokenERC20Data.symbol} ${Moralis.Units.FromWei(tokenERC20Data.balance, tokenERC20Data.decimals)}`}</p>}
+
+      <Row style={styles.roulette} justify="space-between" align="bottom">
         <Col span={8}>
           <p style={styles.text}>1. Choose a bet</p>
           <InputNumber
@@ -154,6 +214,17 @@ function Roulette() {
           </Button>
         </Col>
       </Row>
+
+      <Tabs defaultActiveKey="1" tabPosition="top" onChange={switchTab}>
+        <TabPane tab="All Transactions" key="1">
+          <Transfers transfers={transfersAll}/>
+        </TabPane>
+        <TabPane tab="My Transactions" key="2">
+          <Transfers transfers={transfersMy}/>
+        </TabPane>
+      </Tabs>
+
+      <Confetti recycle={false} numberOfPieces={500} run={runConfetti} />
     </div>
   );
 }

@@ -4,6 +4,9 @@ const styles = {
     maxWidth: "100%",
     textAlign: "center"
   },
+  roulette: {
+    marginBottom: 45
+  },
   input: {
     width: 250,
   },

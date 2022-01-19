@@ -1,5 +1,6 @@
 {
-  "tokenERC20": "0x60f5da6C49De63F35b4Bd61DE3e57f05e7352eda",
+  "tokenERC20": "0x60f5da6c49de63f35b4bd61de3e57f05e7352eda",
+  "tokenERC20Decimals": "18",
   "flipContract": "0x54D29F4cd6F3e9DaC21De331A4a48EF08cfD8605",
   "abi": [
     {

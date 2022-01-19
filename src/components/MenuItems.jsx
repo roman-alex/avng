@@ -19,6 +19,9 @@ function MenuItems() {
       }}
       defaultSelectedKeys={[pathname]}
     >
+      <Menu.Item key="/roulette">
+        <NavLink to="/">Play</NavLink>
+      </Menu.Item>
       <Menu.Item key="/quickstart">
         <NavLink to="/quickstart">Quick Start</NavLink>
       </Menu.Item>
