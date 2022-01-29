@@ -9,10 +9,11 @@ import {
   InputNumber,
   Tabs,
   notification,
-} from 'antd';
+} from "antd";
 import styles from "./styles";
 import contractInfo from "../../contracts/contractInfo.json";
 import Transfers from "./components/Transfers";
+import Admin from "./components/Admin";
 
 function Roulette() {
   const { Moralis, chainId, account } = useMoralis();
@@ -26,17 +27,26 @@ function Roulette() {
   const [tokenERC20Data, setTokenERC20Data] = useState();
   const [transfersAll, setTransfersAll] = useState();
   const [transfersMy, setTransfersMy] = useState();
-  const [activeTab, setActiveTab] = useState();
+  const [activeTab, setActiveTab] = useState('1');
 
   const isValidChain = chainId && chainId === "0x61";
 
   useEffect(() => {
+    let subscription;
+
     if (isValidChain) {
-      fetchAllSpinsData();
-      fetchMySpinsData();
-      subscribeSpinsData();
+      (async () => {
+        const query = new Moralis.Query('Spins');
+        subscription = await query.subscribe();
+        getCurrentTabData(activeTab);
+        subscription.on("create", async (object) => {
+          getCurrentTabData(activeTab);
+        });
+      })()
     }
-  }, [chainId])
+
+    return () => subscription?.unsubscribe();
+  }, [chainId, account])
 
   useEffect(() => {
     if (assets) {
@@ -55,16 +65,21 @@ function Roulette() {
 
   const handleSideChange = event => setChecked(event);
 
-  const switchTab = key => setActiveTab(key);
-
-  const subscribeSpinsData = async () => {
-    const query = new Moralis.Query('Spins');
-    const subscription = await query.subscribe();
-    subscription.on("create", async (object) => {
-      fetchAllSpinsData();
-      fetchMySpinsData();
-    });
+  const getCurrentTabData = tab => {
+    switch (tab) {
+      case '1':
+        fetchAllSpinsData();
+        break;
+      case '2':
+        fetchMySpinsData();
+        break;
+    }
   }
+
+  const switchTab = tab => {
+    setActiveTab(tab);
+    getCurrentTabData(tab);
+  };
 
   const fetchAllSpinsData = async () => {
     const query = new Moralis.Query('Spins');
@@ -221,6 +236,9 @@ function Roulette() {
         </TabPane>
         <TabPane tab="My Transactions" key="2">
           <Transfers transfers={transfersMy}/>
+        </TabPane>
+        <TabPane tab="Admin" key="3">
+          <Admin/>
         </TabPane>
       </Tabs>
 

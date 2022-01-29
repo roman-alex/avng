@@ -32,14 +32,10 @@ const styles = {
     height: 50,
     color: "#fff",
     backgroundColor: "#389e0d",
-  }
-  // table: {
-  //   tableLayout: "fixed",
-  //   width: "100%",
-  //   textAlign: "left",
-  //   borderCollapse: "collapse",
-  //   maxWidth: "100%",
-  // },
+  },
+  cardAdmin: {
+    textAlign: "left",
+  },
 };
 
 export default styles;
