@@ -36,6 +36,18 @@ const styles = {
   cardAdmin: {
     textAlign: "left",
   },
+  redCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 20,
+    backgroundColor: "#ff4d4f"
+  },
+  blackCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 20,
+    backgroundColor: "#262626"
+  }
 };
 
 export default styles;

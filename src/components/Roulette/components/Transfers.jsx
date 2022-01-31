@@ -4,6 +4,7 @@ import moment from "moment";
 import { getEllipsisTxt } from "../../../helpers/formatters";
 import { getExplorer } from "../../../helpers/networks";
 import { Skeleton, Table } from "antd";
+import styles from "../styles";
 
 const Transfers = ({transfers}) => {
   const { Moralis, chainId } = useMoralis();
@@ -28,13 +29,13 @@ const Transfers = ({transfers}) => {
       title: "Side",
       dataIndex: "side",
       key: "side",
-      render: (side) => side ? <div>Red</div> : <div>Black</div>,
+      render: (side) => side ? <div style={styles.redCircle}></div> : <div style={styles.blackCircle}></div>,
     },
     {
       title: "Win",
       dataIndex: "win",
       key: "win",
-      render: (win) => win ? <div>win</div> : <div>lose</div>,
+      render: (win) => win ? <div>🏆</div> : null,
     },
     {
       title: "Bet",

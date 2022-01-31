@@ -14,6 +14,7 @@ import styles from "./styles";
 import contractInfo from "../../contracts/contractInfo.json";
 import Transfers from "./components/Transfers";
 import Admin from "./components/Admin";
+import Charts from "./components/Charts";
 
 function Roulette() {
   const { Moralis, chainId, account } = useMoralis();
@@ -27,7 +28,7 @@ function Roulette() {
   const [tokenERC20Data, setTokenERC20Data] = useState();
   const [transfersAll, setTransfersAll] = useState();
   const [transfersMy, setTransfersMy] = useState();
-  const [activeTab, setActiveTab] = useState('1');
+  const [activeTab, setActiveTab] = useState("1");
 
   const isValidChain = chainId && chainId === "0x61";
 
@@ -71,6 +72,12 @@ function Roulette() {
         fetchAllSpinsData();
         break;
       case '2':
+        fetchMySpinsData();
+        break;
+      case '4':
+        fetchAllSpinsData();
+        break;
+      case '5':
         fetchMySpinsData();
         break;
     }
@@ -125,7 +132,7 @@ function Roulette() {
       ],
       params: {
         _spender: contractInfo?.flipContract,
-        _value: Moralis.Units.Token(amount, contractInfo?.tokenERC20Decimals)
+        _value: Moralis.Units.Token(amount, "18")
       },
     };
 
@@ -135,7 +142,7 @@ function Roulette() {
       abi: contractInfo?.abi,
       params: {
         side: checked ? 1 : 0,
-        value: Moralis.Units.Token(amount, contractInfo?.tokenERC20Decimals)
+        value: Moralis.Units.Token(amount, "18")
       },
     };
 
@@ -155,7 +162,7 @@ function Roulette() {
         description: `
         User ${user}
         Side ${side ? "Red" : "Black"}
-        Bet ${parseFloat(Moralis.Units.FromWei(bet, contractInfo?.tokenERC20Decimals).toFixed(6))}`
+        Bet ${parseFloat(Moralis.Units.FromWei(bet, "18").toFixed(6))}`
       });
 
     } catch (e) {
@@ -186,7 +193,7 @@ function Roulette() {
     <div style={styles.pageWrapper}>
       <h1 style={styles.title}>Roulette</h1>
 
-      {tokenERC20Data && <p>{`${tokenERC20Data.symbol} ${Moralis.Units.FromWei(tokenERC20Data.balance, tokenERC20Data.decimals)}`}</p>}
+      {tokenERC20Data && <p> {`${tokenERC20Data.symbol} ${Moralis.Units.FromWei(tokenERC20Data.balance, tokenERC20Data.decimals)}`}</p>}
 
       <Row style={styles.roulette} justify="space-between" align="bottom">
         <Col span={8}>
@@ -206,8 +213,8 @@ function Roulette() {
           <Switch
             onChange={handleSideChange}
             checked={checked}
-            onColor="#f5222d"
-            offColor="#000000"
+            onColor="#ff4d4f"
+            offColor="#262626"
             activeBoxShadow="0px 0px 1px 2px #fff"
             height={50}
             width={150}
@@ -234,8 +241,14 @@ function Roulette() {
         <TabPane tab="All Transactions" key="1">
           <Transfers transfers={transfersAll}/>
         </TabPane>
+        <TabPane tab="All Statistic" key="4">
+          <Charts id="all" transfers={transfersAll} />
+        </TabPane>
         <TabPane tab="My Transactions" key="2">
           <Transfers transfers={transfersMy}/>
+        </TabPane>
+        <TabPane tab="My Statistic" key="5">
+          <Charts id="my" transfers={transfersMy} />
         </TabPane>
         <TabPane tab="Admin" key="3">
           <Admin/>
