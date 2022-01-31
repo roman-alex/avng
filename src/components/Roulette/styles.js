@@ -12,7 +12,7 @@ const styles = {
   },
   title: {
     fontSize: 30,
-    marginBottom: 20
+    marginBottom: 40
   },
   text: {
     fontSize: 18,
@@ -47,7 +47,13 @@ const styles = {
     height: 20,
     borderRadius: 20,
     backgroundColor: "#262626"
-  }
+  },
+  topLine: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20
+  },
 };
 
 export default styles;

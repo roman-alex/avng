@@ -31,8 +31,8 @@ const Chart = ({
       })
     );
     series.get("colors").set("colors", [
-      am5.color(0x262626),
-      am5.color(0xff4d4f)
+      am5.color(0x434343),
+      am5.color(0xff7875)
     ]);
     series.data.setAll(data);
     series.labels.template.set("visible", false);
@@ -45,7 +45,7 @@ const Chart = ({
     legend.data.setAll(series.dataItems);
 
     return () => root?.dispose();
-  }, [data])
+  }, [data, id, legendLabelText])
 
   return (
     <Card>

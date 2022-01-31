@@ -9,6 +9,7 @@ import {
   InputNumber,
   Tabs,
   notification,
+  Skeleton,
 } from "antd";
 import styles from "./styles";
 import contractInfo from "../../contracts/contractInfo.json";
@@ -28,6 +29,7 @@ function Roulette() {
   const [tokenERC20Data, setTokenERC20Data] = useState();
   const [transfersAll, setTransfersAll] = useState();
   const [transfersMy, setTransfersMy] = useState();
+  const [balance, setBalance] = useState("1");
   const [activeTab, setActiveTab] = useState("1");
 
   const isValidChain = chainId && chainId === "0x61";
@@ -40,45 +42,43 @@ function Roulette() {
         const query = new Moralis.Query('Spins');
         subscription = await query.subscribe();
         getCurrentTabData(activeTab);
+        getBalance();
         subscription.on("create", async (object) => {
+          // if (object.attributes.user === account && assets) {
+          //   setTokenERC20Data(assets.find(item => item.token_address === contractInfo.tokenERC20))
+          // }
           getCurrentTabData(activeTab);
+          getBalance();
         });
       })()
     }
 
     return () => subscription?.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, account])
 
   useEffect(() => {
     if (assets) {
       setTokenERC20Data(assets.find(item => item.token_address === contractInfo.tokenERC20))
-      // balance: "998900"
-      // decimals: "18"
-      // logo: null
-      // name: "Custom token"
-      // symbol: "ARM"
-      // thumbnail: null
-      // token_address: "0x8f0d7bf1f4fb5907780f85e000ee2facfde09369"
     }
   }, [assets])
 
-  const onChange = event => setAmount(event);
+  const handleAmountChange = event => setAmount(event);
 
   const handleSideChange = event => setChecked(event);
 
   const getCurrentTabData = tab => {
     switch (tab) {
       case '1':
-        fetchAllSpinsData();
-        break;
-      case '2':
-        fetchMySpinsData();
-        break;
       case '4':
         fetchAllSpinsData();
         break;
+      case '2':
       case '5':
         fetchMySpinsData();
+        break;
+      default:
+        fetchAllSpinsData();
         break;
     }
   }
@@ -151,6 +151,7 @@ function Roulette() {
       await Moralis.executeFunction(tokenApproveOptions);
       const {events} = await Moralis.executeFunction(options);
       setIsPending(false);
+      // getCurrentTabData(activeTab);
       const {bet, side, user, win} = events?.bet?.returnValues;
 
       if (win) {
@@ -174,6 +175,26 @@ function Roulette() {
     }
   };
 
+  const getBalance = async () => {
+    const options = {
+      contractAddress: contractInfo?.flipContract,
+      functionName: "getBalance",
+      abi: contractInfo?.abi,
+    };
+
+    try {
+      const balance = await Moralis.executeFunction(options);
+      setBalance(Moralis.Units.FromWei(balance, "18").toFixed(6))
+    } catch (e) {
+      // setIsWithdrawPending(false);
+      // notification.open({
+      //   placement: "bottomRight",
+      //   message: `Code: ${e?.code}`,
+      //   description: e?.message,
+      // });
+    }
+  };
+
   const openNotification = ({ message, description }) => {
     notification.open({
       placement: "bottomRight",
@@ -191,10 +212,11 @@ function Roulette() {
 
   return (
     <div style={styles.pageWrapper}>
+      <div style={styles.topLine}>
+        {tokenERC20Data ? <p> {`My Balance: ${Moralis.Units.FromWei(tokenERC20Data.balance, tokenERC20Data.decimals)} ${tokenERC20Data.symbol}`}</p> : <Skeleton.Input style={{ width: 200, height:21 }} />}
+        {tokenERC20Data ? <p> {`Roulette found: ${balance} ${tokenERC20Data.symbol}`}</p> : <Skeleton.Input style={{ width: 200, height:21 }} />}
+      </div>
       <h1 style={styles.title}>Roulette</h1>
-
-      {tokenERC20Data && <p> {`${tokenERC20Data.symbol} ${Moralis.Units.FromWei(tokenERC20Data.balance, tokenERC20Data.decimals)}`}</p>}
-
       <Row style={styles.roulette} justify="space-between" align="bottom">
         <Col span={8}>
           <p style={styles.text}>1. Choose a bet</p>
@@ -202,10 +224,10 @@ function Roulette() {
             style={styles.input}
             size="large"
             min="0.001"
-            max="10"
+            max={balance}
             defaultValue={amount}
             step="0.010000000000000000"
-            onChange={onChange}
+            onChange={handleAmountChange}
           />
         </Col>
         <Col span={8}>
@@ -242,13 +264,13 @@ function Roulette() {
           <Transfers transfers={transfersAll}/>
         </TabPane>
         <TabPane tab="All Statistic" key="4">
-          <Charts id="all" transfers={transfersAll} />
+          <Charts id="all" transfers={transfersAll} symbol={tokenERC20Data?.symbol} />
         </TabPane>
         <TabPane tab="My Transactions" key="2">
           <Transfers transfers={transfersMy}/>
         </TabPane>
         <TabPane tab="My Statistic" key="5">
-          <Charts id="my" transfers={transfersMy} />
+          <Charts id="my" transfers={transfersMy} symbol={tokenERC20Data?.symbol} />
         </TabPane>
         <TabPane tab="Admin" key="3">
           <Admin/>

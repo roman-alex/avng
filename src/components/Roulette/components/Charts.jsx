@@ -5,7 +5,8 @@ import Chart from "./Chart";
 
 const Charts = ({
   id,
-  transfers
+  transfers,
+  symbol,
 }) => {
   const { Moralis } = useMoralis();
   const [betData, setBetData] = useState([]);
@@ -31,10 +32,10 @@ const Charts = ({
 
       setBetAmountData([{
         side: "Black",
-        value: parseFloat(Moralis.Units.FromWei(blackTransfers.reduce((total, num) => total + +num.bet, 0), "18").toFixed(6))
+        value: getValue(blackTransfers)
       }, {
         side: "Red",
-        value: parseFloat(Moralis.Units.FromWei(redTransfers.reduce((total, num) => total + +num.bet, 0), "18").toFixed(6))
+        value: getValue(redTransfers)
       }])
 
       setBetWinData([{
@@ -47,13 +48,18 @@ const Charts = ({
 
       setBetWinAmountData([{
         side: "Black",
-        value: parseFloat(Moralis.Units.FromWei(blackWinTransfers.reduce((total, num) => total + +num.bet, 0), "18").toFixed(6))
+        value: getValue(blackWinTransfers)
       }, {
         side: "Red",
-        value: parseFloat(Moralis.Units.FromWei(redWinTransfers.reduce((total, num) => total + +num.bet, 0), "18").toFixed(6))
+        value: getValue(redWinTransfers)
       }])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transfers])
+
+  const getValue = (transfers) => {
+    return parseFloat(Moralis.Units.FromWei(transfers.reduce((total, num) => total + +num.bet, 0), "18").toFixed(6))
+  }
 
   return (
     <Row>
@@ -69,7 +75,7 @@ const Charts = ({
           id={`${id}-bet-amount-chart`}
           title="All bets (tokens)"
           data={betAmountData}
-          legendLabelText="AVG"
+          legendLabelText={symbol}
         />
       </Col>
       <Col span={12}>
@@ -84,7 +90,7 @@ const Charts = ({
           id={`${id}-bet-win-amount-chart`}
           title="Win bets (tokens)"
           data={betWinAmountData}
-          legendLabelText="AVG"
+          legendLabelText={symbol}
         />
       </Col>
     </Row>

@@ -58,3 +58,7 @@ textarea,
 select {
   font: inherit;
 }
+
+h1 {
+  margin-bottom: 15px;
+}

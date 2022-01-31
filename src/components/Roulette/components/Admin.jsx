@@ -17,7 +17,7 @@ const Admin = () => {
   const [isFundPending, setIsFundPending] = useState(false);
   const [isWithdrawPending, setIsWithdrawPending] = useState(false);
 
-  const onChange = event => setAmount(event);
+  const handleAmountChange = event => setAmount(event);
 
   const onFund = async () => {
     const tokenApproveOptions = {
@@ -67,7 +67,7 @@ const Admin = () => {
       setIsFundPending(true);
       await Moralis.executeFunction(tokenApproveOptions);
       const tx = await Moralis.executeFunction(fundContractOptions);
-      const amount = parseFloat(Moralis.Units.FromWei(tx?.events.funded.returnValues.funding, contractInfo?.tokenERC20Decimals).toFixed(6));
+      const amount = parseFloat(Moralis.Units.FromWei(tx?.events.funded.returnValues.funding, "18").toFixed(6));
       setIsFundPending(false);
 
       notification.open({
@@ -96,7 +96,7 @@ const Admin = () => {
     try {
       setIsWithdrawPending(true);
       const tx = await Moralis.executeFunction(withdrawAllOptions);
-      const amount = parseFloat(Moralis.Units.FromWei(tx?.events.withdrawed.returnValues.funding, contractInfo?.tokenERC20Decimals).toFixed(6));
+      const amount = parseFloat(Moralis.Units.FromWei(tx?.events.withdrawed.returnValues.funding, "18").toFixed(6));
       setIsWithdrawPending(false);
 
       notification.open({
@@ -126,7 +126,7 @@ const Admin = () => {
           max="10"
           defaultValue={amount}
           step="0.010000000000000000"
-          onChange={onChange}
+          onChange={handleAmountChange}
         />
         <Button
           size="large"
