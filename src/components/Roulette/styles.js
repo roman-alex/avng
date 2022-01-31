@@ -52,7 +52,8 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20
+    marginBottom: 20,
+    marginTop: -40,
   },
 };
 
