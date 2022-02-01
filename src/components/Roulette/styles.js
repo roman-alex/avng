@@ -4,15 +4,19 @@ const styles = {
     maxWidth: "100%",
     textAlign: "center"
   },
-  roulette: {
-    marginBottom: 45
+  rouletteCard: {
+    marginBottom: 30
+  },
+  rouletteCardTitle: {
+    fontSize: 20
   },
   input: {
     width: 250,
   },
   title: {
-    fontSize: 30,
-    marginBottom: 40
+    fontSize: 35,
+    marginBottom: 30,
+    marginTop: -20,
   },
   text: {
     fontSize: 18,
@@ -47,13 +51,6 @@ const styles = {
     height: 20,
     borderRadius: 20,
     backgroundColor: "#262626"
-  },
-  topLine: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    marginTop: -40,
   },
 };
 

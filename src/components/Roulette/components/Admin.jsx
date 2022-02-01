@@ -5,13 +5,16 @@ import {
   InputNumber,
   notification,
   Card,
+  Modal
 } from "antd";
 import { useMoralis } from "react-moralis";
 import styles from "./../styles";
 import contractInfo from "../../../contracts/contractInfo.json";
 import {getEllipsisTxt} from "../../../helpers/formatters";
 
-const Admin = () => {
+const Admin = ({
+  updateData
+}) => {
   const { Moralis } = useMoralis();
   const [amount, setAmount] = useState(1);
   const [isFundPending, setIsFundPending] = useState(false);
@@ -68,12 +71,12 @@ const Admin = () => {
       await Moralis.executeFunction(tokenApproveOptions);
       const tx = await Moralis.executeFunction(fundContractOptions);
       const amount = parseFloat(Moralis.Units.FromWei(tx?.events.funded.returnValues.funding, "18").toFixed(6));
+      updateData();
       setIsFundPending(false);
 
-      notification.open({
-        placement: "bottomRight",
-        message: `Fund`,
-        description: `${amount} tokens were funded`,
+      Modal.success({
+        centered: true,
+        title: `${amount} ${contractInfo.tokenERC20Symbol} were funded!`,
       });
 
     } catch (e) {
@@ -97,12 +100,12 @@ const Admin = () => {
       setIsWithdrawPending(true);
       const tx = await Moralis.executeFunction(withdrawAllOptions);
       const amount = parseFloat(Moralis.Units.FromWei(tx?.events.withdrawed.returnValues.funding, "18").toFixed(6));
+      updateData();
       setIsWithdrawPending(false);
 
-      notification.open({
-        placement: "bottomRight",
-        message: `Withdrawn`,
-        description: `${amount} tokens were withdrawn to ${getEllipsisTxt(tx?.events.withdrawed.returnValues[0], 6)}`,
+      Modal.success({
+        centered: true,
+        title: `${amount} ${contractInfo.tokenERC20Symbol} were withdrawn to ${getEllipsisTxt(tx?.events.withdrawed.returnValues[0], 6)}!`,
       });
 
     } catch (e) {
