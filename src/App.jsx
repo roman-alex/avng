@@ -10,7 +10,6 @@ import Wallet from "components/Wallet";
 import { Layout, Tabs } from "antd";
 import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
-import "./style.css";
 import MenuItems from "./components/MenuItems";
 import Roulette from "./components/Roulette";
 const { Header } = Layout;

@@ -62,3 +62,8 @@ select {
 h1 {
   margin-bottom: 15px;
 }
+
+.ant-modal-content {
+  overflow: auto;
+  border-radius: 1rem;
+}
