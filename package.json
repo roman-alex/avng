@@ -13,7 +13,6 @@
     "moralis": "^0.0.176",
     "react": "^17.0.2",
     "react-blockies": "^1.4.1",
-    "react-confetti": "^6.0.1",
     "react-dom": "^17.0.2",
     "react-moralis": "^0.3.11",
     "react-router": "^5.2.1",
@@ -28,10 +27,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "devchain": "node Truffle/scripts/devChain.js",
-    "connect": "moralis-admin-cli connect-local-devchain",
-    "watch:events": "moralis-admin-cli add-contract",
-    "deploy": "node Truffle/scripts/deployContract.js",
     "deploypage": "gh-pages -d build",
     "clean": "npx gh-pages-clean"
   },
