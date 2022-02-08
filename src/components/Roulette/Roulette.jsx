@@ -21,7 +21,7 @@ import Charts from "./components/Charts";
 
 function Roulette() {
   const web3 = useMoralisWeb3Api();
-  const { Moralis, chainId, account } = useMoralis();
+  const { Moralis, chainId, account, isAuthenticated } = useMoralis();
   const { TabPane } = Tabs;
 
   const [checked, setChecked] = useState(true);
@@ -41,10 +41,12 @@ function Roulette() {
     let subscription;
     if (isValidChain) {
       (async () => {
-        const query = new Moralis.Query('Spins');
+        const query = new Moralis.Query('Bets');
         subscription = await query.subscribe();
         updateData();
-        checkContractOwner()
+        if (isAuthenticated) {
+          checkContractOwner()
+        }
         subscription.on("create", object => {
           const { user, bet, win } = object?.attributes;
           if (user === account) {
@@ -57,17 +59,19 @@ function Roulette() {
     }
     return () => subscription?.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, account])
+  }, [chainId, account, isAuthenticated])
 
   const updateData = () => {
     getCurrentTabData(activeTab);
-    getContractBalance();
     getUserBalance();
+    if (isAuthenticated) {
+      getContractBalance();
+    }
   };
 
   const getUserBalance = async () => {
     const assets = await web3.account.getTokenBalances({ chain: chainId });
-    setTokenERC20Data(assets.find(item => item.token_address === contractInfo.tokenERC20));
+    setTokenERC20Data(assets.find(item => item.token_address?.toLowerCase() === contractInfo.tokenERC20?.toLowerCase()));
   };
 
   const handleAmountChange = event => setAmount(event);
@@ -78,11 +82,11 @@ function Roulette() {
     switch (tab) {
       case '1':
       case '4':
-        fetchAllSpinsData();
+        fetchAllBetsData();
         break;
       case '2':
       case '5':
-        fetchMySpinsData();
+        fetchMyBetsData();
         break;
       default:
         break;
@@ -109,14 +113,14 @@ function Roulette() {
     getCurrentTabData(tab);
   };
 
-  const fetchAllSpinsData = async () => {
-    const query = new Moralis.Query('Spins');
+  const fetchAllBetsData = async () => {
+    const query = new Moralis.Query('Bets');
     const results = await query.descending("block_timestamp").find();
     setTransfersAll(results.map(tr => tr.attributes));
   }
 
-  const fetchMySpinsData = async () => {
-    const query = new Moralis.Query('Spins');
+  const fetchMyBetsData = async () => {
+    const query = new Moralis.Query('Bets');
     query.equalTo("user", account);
     const results = await query.descending("block_timestamp").find();
     setTransfersMy(results.map(tr => tr.attributes));
@@ -194,7 +198,7 @@ function Roulette() {
       setBalance(Moralis.Units.FromWei(balance, "18"))
     } catch (e) {
       openNotification({
-        message: `Code: ${e?.code}`,
+        message: `Code1: ${e?.code}`,
         description: e?.message
       });
     }
@@ -235,13 +239,12 @@ function Roulette() {
       <h1 style={styles.title}>Place a bet and get X2 with a 50% chance 🤑</h1>
       <Card
         style={styles.rouletteCard}
-        title={tokenERC20Data ?
+        title={isAuthenticated && tokenERC20Data ?
           <p style={styles.rouletteCardTitle}>
             Your balance is <b>{`${Moralis.Units.FromWei(tokenERC20Data.balance, tokenERC20Data.decimals)} ${tokenERC20Data.symbol}`}</b>.
             Roulette found is <b>{`${balance} ${tokenERC20Data.symbol}`}</b>
           </p>
-          :
-          <Skeleton.Input style={{ width: 700, height: 32 }}/>
+          : isAuthenticated ? <Skeleton.Input style={{ width: 700, height: 32 }}/> : null
         }
       >
         <Row justify="space-between" align="bottom">
@@ -294,13 +297,17 @@ function Roulette() {
         <TabPane tab="All Statistic" key="4">
           <Charts id="all" transfers={transfersAll} symbol={tokenERC20Data?.symbol} />
         </TabPane>
-        <TabPane tab="My Transactions" key="2">
-          <Transfers transfers={transfersMy}/>
-        </TabPane>
-        <TabPane tab="My Statistic" key="5">
-          <Charts id="my" transfers={transfersMy} symbol={tokenERC20Data?.symbol} />
-        </TabPane>
-        {isContractOwner &&
+        {isAuthenticated &&
+          <>
+            <TabPane tab="My Transactions" key="2">
+              <Transfers transfers={transfersMy}/>
+            </TabPane>
+            <TabPane tab="My Statistic" key="5">
+              <Charts id="my" transfers={transfersMy} symbol={tokenERC20Data?.symbol} />
+            </TabPane>
+          </>
+        }
+        {isAuthenticated && isContractOwner &&
           <TabPane tab="Admin" key="3">
             <Admin updateData={updateData} />
           </TabPane>

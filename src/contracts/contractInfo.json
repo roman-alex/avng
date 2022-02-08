@@ -1,7 +1,7 @@
 {
-  "tokenERC20": "0x60f5da6c49de63f35b4bd61de3e57f05e7352eda",
-  "tokenERC20Symbol": "ARM2",
-  "flipContract": "0x54D29F4cd6F3e9DaC21De331A4a48EF08cfD8605",
+  "tokenERC20": "0x9D5F7573b6CBad7C2545806DBAf85F1F62f73B4E",
+  "tokenERC20Symbol": "AVNG",
+  "flipContract": "0xE072309F1D28e04e0051fc2616184C25Efd3836B",
   "abi": [
     {
       "inputs": [

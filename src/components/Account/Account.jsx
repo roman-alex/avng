@@ -52,6 +52,7 @@ function Account() {
     return (
       <>
         <div
+          style={{ paddingRight: 10 }}
           onClick={() => setIsAuthModalVisible(true)}
         >
           <p style={styles.text}>Authenticate</p>
