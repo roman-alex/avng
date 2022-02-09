@@ -242,7 +242,7 @@ function Roulette() {
         title={isAuthenticated && tokenERC20Data ?
           <p style={styles.rouletteCardTitle}>
             Your balance is <b>{`${Moralis.Units.FromWei(tokenERC20Data.balance, tokenERC20Data.decimals)} ${tokenERC20Data.symbol}`}</b>.
-            Roulette found is <b>{`${balance} ${tokenERC20Data.symbol}`}</b>
+            Roulette fund is <b>{`${balance} ${tokenERC20Data.symbol}`}</b>
           </p>
           : isAuthenticated ? <Skeleton.Input style={{ width: 700, height: 32 }}/> : null
         }
