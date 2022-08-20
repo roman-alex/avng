@@ -47,9 +47,9 @@ function Roulette() {
         if (isAuthenticated) {
           checkContractOwner()
         }
-        subscription.on("create", object => {
-          const { user, bet, win } = object?.attributes;
-          if (user === account) {
+        subscription.on("update", object => {
+          const { user, bet, win, confirmed } = object?.attributes;
+          if (!confirmed && user === account) {
             setIsPending(false);
             showModal(bet, win);
           }
